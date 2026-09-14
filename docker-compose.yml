@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  assinatura-digital:
+    build: .
+    container_name: servidor-assinatura-digital
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app/backend
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - assinatura-net
+
+  # Servidor web estático para o frontend
+  frontend:
+    image: nginx:alpine
+    container_name: assinatura-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - assinatura-digital
+    networks:
+      - assinatura-net
+
+networks:
+  assinatura-net:
+    driver: bridge
